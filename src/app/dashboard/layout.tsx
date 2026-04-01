@@ -38,7 +38,7 @@ export default async function DashboardLayout({
   if (!setup.ok) {
     return (
       <div className="min-h-screen">
-        <AppNav email={user.email ?? undefined} />
+        <AppNav email={user.email ?? undefined} signedIn />
         <div className="mx-auto max-w-5xl px-6 py-10">
           <DashboardSetupError message={setup.message} />
         </div>
@@ -48,7 +48,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen">
-      <AppNav email={user.email ?? undefined} />
+      <AppNav email={user.email ?? undefined} signedIn />
       <div className="mx-auto max-w-5xl px-6 py-10">{children}</div>
     </div>
   );

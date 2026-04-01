@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/dashboard";
+  const next = searchParams.get("next") ?? "/home";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -84,6 +84,14 @@ export function LoginForm() {
         >
           {loading ? "Signing in…" : "Log in"}
         </button>
+        <p className="mt-5 text-center">
+          <Link
+            href="/explore"
+            className="text-[10px] uppercase tracking-[0.18em] text-[var(--muted)] transition hover:text-[var(--foreground)]"
+          >
+            Continue without signing in
+          </Link>
+        </p>
       </form>
     </AuthShell>
   );

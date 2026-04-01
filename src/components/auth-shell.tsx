@@ -19,9 +19,9 @@ export function AuthShell({
         >
           ← Catalyst
         </Link>
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)]/80 p-8 shadow-xl backdrop-blur-sm">
-          <h1 className="text-2xl font-semibold tracking-tight text-white">{title}</h1>
-          {subtitle && <div className="mt-2 text-sm text-[var(--muted)]">{subtitle}</div>}
+        <div className="rounded-2xl border border-white/[0.12] bg-[var(--card)]/85 p-8 shadow-xl shadow-black/25 backdrop-blur-md">
+          <h1 className="text-3xl font-extralight tracking-tight text-white">{title}</h1>
+          {subtitle && <div className="mt-3 text-sm text-[var(--muted)]">{subtitle}</div>}
           <div className="mt-8">{children}</div>
         </div>
       </div>

@@ -25,6 +25,7 @@ export async function addTicker(formData: FormData) {
     throw new Error(error.message);
   }
   revalidatePath("/dashboard");
+  revalidatePath("/home");
 }
 
 export async function removeTicker(formData: FormData) {
@@ -35,6 +36,7 @@ export async function removeTicker(formData: FormData) {
   const { error } = await supabase.from("watchlist_items").delete().eq("id", itemId);
   if (error) throw new Error(error.message);
   revalidatePath("/dashboard");
+  revalidatePath("/home");
 }
 
 export async function updateDigest(formData: FormData) {

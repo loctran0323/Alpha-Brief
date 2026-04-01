@@ -5,15 +5,23 @@ import { updateSession } from "@/lib/supabase/middleware";
 const publicPaths = ["/", "/login", "/signup"];
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  if (pathname === "/dashboard/home") {
+    return NextResponse.redirect(new URL("/home", request.url));
+  }
+
   if (!getSupabaseUrl() || !getSupabaseAnonKey()) {
     return NextResponse.next();
   }
 
-  const { pathname } = request.nextUrl;
   const isPublic =
     pathname === "/" ||
+    pathname === "/home" ||
     publicPaths.includes(pathname) ||
-    pathname.startsWith("/auth/");
+    pathname.startsWith("/auth/") ||
+    pathname.startsWith("/explore") ||
+    pathname.startsWith("/api/news/") ||
+    pathname.startsWith("/api/quotes");
 
   let supabaseResponse = NextResponse.next({ request });
   let user: Awaited<ReturnType<typeof updateSession>>["user"] = null;
@@ -43,7 +51,7 @@ export async function middleware(request: NextRequest) {
 
   if ((pathname === "/login" || pathname === "/signup") && user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    url.pathname = "/home";
     url.search = "";
     return NextResponse.redirect(url);
   }

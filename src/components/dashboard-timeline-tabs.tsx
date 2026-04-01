@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { MarketEvent, WatchlistItem } from "@/types/database";
 import { TimelinePager } from "@/components/timeline-pager";
@@ -15,10 +16,13 @@ export function DashboardTimelineTabs({
   events,
   watchlistItems,
   perPage = 2,
+  guestMode = false,
 }: {
   events: MarketEvent[];
   watchlistItems: WatchlistItem[];
   perPage?: number;
+  /** Public explore: no saved watchlist; ticker tab prompts sign-in. */
+  guestMode?: boolean;
 }) {
   const [tab, setTab] = useState<"macro" | "ticker">("macro");
 
@@ -35,8 +39,12 @@ export function DashboardTimelineTabs({
   const emptyMessage =
     activeEvents.length === 0
       ? tab === "macro"
-        ? "No macro or economy-wide events in the window yet. Refresh after adding rows in Supabase or when the calendar rolls forward."
-        : "No watchlist-tied events yet. Add tickers in Watchlist and create `market_events` rows with those symbols."
+        ? guestMode
+          ? "No macro events in the current window."
+          : "No macro or economy-wide events in the window yet. Refresh after adding rows in Supabase or when the calendar rolls forward."
+        : guestMode
+          ? "Sign in and add a watchlist to see company-specific and headline rows here."
+          : "No watchlist-tied events yet. Add tickers in Watchlist and create `market_events` rows with those symbols."
       : undefined;
 
   return (
@@ -79,7 +87,16 @@ export function DashboardTimelineTabs({
               </p>
               {sortedTickers.length === 0 ? (
                 <p className="mt-2 text-sm text-[var(--muted)]">
-                  Add symbols in Watchlist above to see ticker tags and company events here.
+                  {guestMode ? (
+                    <>
+                      <Link href="/signup" className="text-[var(--accent)] hover:underline">
+                        Create an account
+                      </Link>{" "}
+                      and add tickers to see them here.
+                    </>
+                  ) : (
+                    "Add symbols in Watchlist above to see ticker tags and company events here."
+                  )}
                 </p>
               ) : (
                 <ul className="mt-2 flex flex-wrap gap-2">

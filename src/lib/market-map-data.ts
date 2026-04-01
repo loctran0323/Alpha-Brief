@@ -23,7 +23,7 @@ export type MarketMapRoot = {
   children: MarketMapSector[];
 };
 
-const YAHOO_UA =
+export const YAHOO_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
 
 /**
@@ -148,7 +148,7 @@ function lastValidCloseIndices(closes: (number | null)[]): [number, number] | nu
   return [idx[idx.length - 2]!, idx[idx.length - 1]!];
 }
 
-async function fetchYahooChartSnapshot(symbol: string): Promise<SymbolSnapshot | null> {
+export async function fetchYahooChartSnapshot(symbol: string): Promise<SymbolSnapshot | null> {
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=3mo&interval=1d`;
   const res = await fetch(url, {
     headers: { "User-Agent": YAHOO_UA, Accept: "application/json" },

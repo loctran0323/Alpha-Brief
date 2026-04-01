@@ -60,3 +60,8 @@ export async function fetchMergedDashboardEvents(
   const merged = mergeTimelineEvents(withMacro, online);
   return filterUpcomingMarketEvents(merged);
 }
+
+/** Public / guest: rolling synthetic macro calendar only (anon users cannot read `market_events`). */
+export function getGuestTimelineEvents(): MarketEvent[] {
+  return filterUpcomingMarketEvents(getSyntheticMacroTimeline());
+}

@@ -18,13 +18,19 @@ export function SignupForm() {
     setError(null);
     setLoading(true);
     const supabase = createClient();
-    const { error: err } = await supabase.auth.signUp({ email, password });
+    /** Use the current origin so confirm links match Vercel vs local; must be listed in Supabase → Auth → Redirect URLs. */
+    const emailRedirectTo = `${window.location.origin}/auth/callback`;
+    const { error: err } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo },
+    });
     setLoading(false);
     if (err) {
       setError(err.message);
       return;
     }
-    router.push("/dashboard");
+    router.push("/home");
     router.refresh();
   }
 
@@ -84,6 +90,14 @@ export function SignupForm() {
         >
           {loading ? "Creating…" : "Create account"}
         </button>
+        <p className="mt-5 text-center">
+          <Link
+            href="/explore"
+            className="text-[10px] uppercase tracking-[0.18em] text-[var(--muted)] transition hover:text-[var(--foreground)]"
+          >
+            Continue without signing in
+          </Link>
+        </p>
       </form>
     </AuthShell>
   );

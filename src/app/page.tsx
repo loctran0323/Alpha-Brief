@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { isSupabaseConfigured } from "@/lib/env";
+import { createClient } from "@/lib/supabase/server";
 
 const features = [
   {
@@ -25,7 +26,7 @@ const features = [
   {
     title: "Market map",
     body:
-      "After you sign in, open Map for a sector → industry view of large-cap names with recent price change — a quick way to scan the tape by theme.",
+      "Explore Map without an account, or sign in for a full dashboard. Sector → industry view of large-cap names with recent price change.",
   },
   {
     title: "Optional email digest",
@@ -34,81 +35,137 @@ const features = [
   },
 ] as const;
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
   const configured = isSupabaseConfigured();
+  let signedIn = false;
+  if (configured) {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    signedIn = Boolean(user);
+  }
+  const catalystHref = signedIn ? "/home" : "/";
 
   return (
     <div className="relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#1a2332_0%,_transparent_55%)]" />
-      <header className="relative z-10 mx-auto flex max-w-5xl items-center justify-between px-6 py-8">
-        <span className="text-lg font-semibold tracking-tight text-white">Catalyst</span>
-        <nav className="flex items-center gap-4 text-sm">
+      <header className="relative z-10 mx-auto flex max-w-5xl items-center justify-between px-6 py-6 md:py-8">
+        <Link href={catalystHref} className="text-lg font-semibold tracking-tight text-white">
+          Catalyst
+        </Link>
+        <nav className="flex items-center gap-5 text-sm">
           {configured ? (
-            <>
+            signedIn ? (
               <Link
-                href="/login"
-                className="text-[var(--muted)] transition hover:text-white"
+                href="/home"
+                className="rounded-lg bg-white/10 px-3 py-1.5 font-medium text-white ring-1 ring-white/15 transition hover:bg-white/15"
               >
-                Log in
+                Home
               </Link>
-              <Link
-                href="/signup"
-                className="rounded-lg bg-[var(--accent)] px-4 py-2 font-medium text-white transition hover:bg-[var(--accent-muted)]"
-              >
-                Get started
-              </Link>
-            </>
+            ) : (
+              <>
+                <Link
+                  href="/explore"
+                  className="text-[var(--muted)] transition hover:text-white"
+                >
+                  Explore
+                </Link>
+                <Link
+                  href="/login"
+                  className="text-[var(--muted)] transition hover:text-white"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/signup"
+                  className="rounded-lg bg-white/10 px-3 py-1.5 font-medium text-white ring-1 ring-white/15 transition hover:bg-white/15"
+                >
+                  Sign up
+                </Link>
+              </>
+            )
           ) : (
             <span className="max-w-[220px] text-right text-xs leading-snug text-amber-400/90 sm:max-w-none">
-              Sign-in needs backend keys in{" "}
-              <code className="text-amber-200/90">.env.local</code>
+              Add keys in <code className="text-amber-200/90">.env.local</code>
             </span>
           )}
         </nav>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-5xl px-6 pb-24 pt-8 md:pt-14">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-[var(--accent)]">
-            Watchlist · timeline · news
+      <main className="relative z-10 mx-auto max-w-5xl px-6 pb-24">
+        <div className="mx-auto max-w-lg pt-4 text-center md:pt-8">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--accent)]">
+            Markets · timeline · news
           </p>
-          <h1 className="text-balance text-4xl font-semibold tracking-tight text-white md:text-5xl">
-            One dashboard for what’s next in the market — tuned to your tickers
+          <h1 className="mt-4 text-5xl font-extralight tracking-tight text-white md:text-6xl">
+            Welcome
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-[var(--muted)]">
-            Catalyst combines an{" "}
-            <span className="text-[var(--foreground)]">upcoming-event timeline</span>, a{" "}
-            <span className="text-[var(--foreground)]">news briefing</span> from major RSS sources, and a{" "}
-            <span className="text-[var(--foreground)]">sector map</span> so you can scan macro dates, headlines, and
-            large-cap moves without living in a trading terminal. Built for retail investors who want context, not noise.
+          <p className="mx-auto mt-5 max-w-md text-pretty text-base leading-relaxed text-[var(--muted)] md:text-lg">
+            Your dashboard for upcoming catalysts, headlines, and a sector map — built for context, not noise.
           </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            {configured ? (
-              <Link
-                href="/signup"
-                className="rounded-xl bg-[var(--accent)] px-8 py-3 text-base font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-[var(--accent-muted)]"
-              >
-                Create free account
-              </Link>
+
+          {configured ? (
+            signedIn ? (
+              <div className="mx-auto mt-10 max-w-sm">
+                <div className="rounded-2xl border border-white/[0.12] bg-[var(--card)]/80 p-6 shadow-xl shadow-black/20 backdrop-blur-md md:p-8">
+                  <p className="text-xs font-medium uppercase tracking-wider text-[var(--muted)]">
+                    You&apos;re signed in
+                  </p>
+                  <Link
+                    href="/home"
+                    className="mt-4 flex min-h-[2.75rem] w-full items-center justify-center rounded-xl bg-white px-3 text-center text-sm font-semibold text-[#0c0f14] shadow-sm transition hover:bg-white/90"
+                  >
+                    Open home
+                  </Link>
+                </div>
+              </div>
             ) : (
-              <span className="rounded-xl border border-[var(--border)] px-8 py-3 text-base text-[var(--muted)]">
-                Connect the app backend first (see .env.example)
-              </span>
-            )}
-            <Link
-              href={configured ? "/login" : "#"}
-              className={
-                configured
-                  ? "text-sm font-medium text-[var(--muted)] underline-offset-4 hover:text-white hover:underline"
-                  : "cursor-not-allowed text-sm text-[var(--muted)]/50"
-              }
-            >
-              I already have an account
-            </Link>
-          </div>
+              <div className="mx-auto mt-10 max-w-sm">
+                <div className="rounded-2xl border border-white/[0.12] bg-[var(--card)]/80 p-6 shadow-xl shadow-black/20 backdrop-blur-md md:p-8">
+                  <p className="text-xs font-medium uppercase tracking-wider text-[var(--muted)]">
+                    Get started
+                  </p>
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    <Link
+                      href="/login"
+                      className="flex min-h-[2.75rem] items-center justify-center rounded-xl border border-white/25 bg-white/[0.04] px-3 text-center text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/[0.08]"
+                    >
+                      Log in
+                    </Link>
+                    <Link
+                      href="/signup"
+                      className="flex min-h-[2.75rem] items-center justify-center rounded-xl bg-white px-3 text-center text-sm font-semibold text-[#0c0f14] shadow-sm transition hover:bg-white/90"
+                    >
+                      Sign up
+                    </Link>
+                  </div>
+                  <p className="mt-3 text-center text-xs leading-relaxed text-[var(--muted)]">
+                    New here? Sign up is free. Returning? Use Log in.
+                  </p>
+                </div>
+                <p className="mt-8 text-center">
+                  <Link
+                    href="/explore"
+                    className="text-[10px] uppercase tracking-[0.18em] text-[var(--muted)] transition hover:text-white/80"
+                  >
+                    Continue without signing in
+                  </Link>
+                </p>
+              </div>
+            )
+          ) : (
+            <p className="mx-auto mt-10 max-w-sm rounded-2xl border border-amber-500/30 bg-amber-500/5 px-5 py-4 text-sm text-amber-200/90">
+              Copy <code className="rounded bg-black/30 px-1.5 py-0.5 text-xs">.env.example</code> to{" "}
+              <code className="rounded bg-black/30 px-1.5 py-0.5 text-xs">.env.local</code> with your
+              Supabase URL and anon key, then restart the dev server.
+            </p>
+          )}
         </div>
 
-        <ul className="mx-auto mt-16 grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mx-auto mt-20 grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f) => (
             <li
               key={f.title}
